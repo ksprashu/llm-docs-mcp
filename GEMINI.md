@@ -7,57 +7,88 @@ This document provides essential context for AI models interacting with this pro
 _This section is for human developers to provide explicit instructions, overrides, or clarifications that might not be obvious from the codebase. AI collaborators should treat this section as the highest source of truth and follow its directives without exception._
 
 [//]: # (USER_SECTION_START)
-# Directive: New Documentation Source Integration Workflow
+# Directive: Documentation Source Management Workflow
 
 ## 1. Overview
 
-This document defines the mandatory, semi-automated procedure for integrating a new documentation source into the `llms-docs-ext` extension. You are to act as the agent executing this workflow upon receiving the specified trigger prompt from the user.
+This document defines the mandatory procedure for managing documentation sources (adding, removing, modifying) for the `llms-docs-ext` extension. You are to act as the agent executing this workflow. The single source of truth for the documentation URLs is the `args` array in the `/llms-docs-mcp/gemini-extension.json` file.
 
-## 2. Trigger Prompt
+## 2. Trigger Prompts
 
-This workflow must be initiated when the user provides a prompt in the following format:
+This workflow is initiated by one of the following user prompts:
 
-> "Add a new documentation source: `[Name of Source]` from `[URL to llms.txt]`"
+*   **To Add:** "Add a new documentation source: `[Name of Source]` from `[URL to llms.txt]`"
+*   **To Remove:** "Remove the documentation source: `[Name of Source]`"
+*   **To Modify:** "Modify the documentation source `[Name of Source]` to use the URL `[New URL to llms.txt]`"
 
-## 3. Integration Procedure
+## 3. Management Procedures
 
-Upon receiving the trigger prompt, you must execute the following steps precisely.
+### 3.1. Adding a New Documentation Source
 
-### Step 3.1: Fetch and Analyze Primary Source
+This procedure integrates a new documentation source into the extension.
 
+#### Step 3.1.1: Fetch and Analyze Primary Source
 1.  Use the `web_fetch` tool to retrieve the content of the `[URL to llms.txt]` provided by the user.
 2.  From the fetched content, parse and list all unique second-level URLs (those ending in `.md.txt` or similar markdown formats).
 3.  Use the `web_fetch` tool again on a representative sample of these second-level URLs (the first 3-5 unique URLs) to perform a deeper analysis of the actual documentation content.
 
-### Step 3.2: Synthesize Capabilities
-
-1.  Based on your deep analysis, create a concise, bulleted list of the key **capabilities** and **high-level concepts** covered by this documentation. 
+#### Step 3.1.2: Synthesize Capabilities
+1.  Based on your deep analysis, create a concise, bulleted list of the key **capabilities** and **high-level concepts** covered by this documentation.
 2.  Do not list individual functions or methods. Focus on logical groupings (e.g., "Authentication", "Content Generation", "Data Handling").
 3.  Present this summary to the user for confirmation by saying: "I have analyzed the source. It appears to cover the following topics: [Bulleted List]. Shall I proceed with integrating it?"
 
-### Step 3.3: Update Extension Configuration
+#### Step 3.1.3: Update Extension Configuration
+1.  **Only after user confirmation**, read the contents of the `/llms-docs-mcp/gemini-extension.json` file.
+2.  Find the `args` array within the `mcpServers.llms-docs-mcp` object.
+3.  Append a new string to this array in the format `"[Name of Source]:[URL to llms.txt]"`.
+4.  Write the updated content back to the `/llms-docs-mcp/gemini-extension.json` file.
 
-1.  **Only after user confirmation**, read the contents of the `/llms-docs-ext/config.json` file.
-2.  Append a new JSON object to the array with the `"name": "[Name of Source]"` and `"llms_txt": "[URL to llms.txt]"`.
-3.  Write the updated content back to the `/llms-docs-ext/config.json` file.
-
-### Step 3.4: Update Extension `GEMINI.md`
-
-1.  Read the contents of the `/llms-docs-ext/GEMINI.md` file.
+#### Step 3.1.4: Update Extension `GEMINI.md`
+1.  Read the contents of the `/llms-docs-mcp/GEMINI.md` file.
 2.  Append a new entry to the "Activation Hooks & Supported Topics" section.
 3.  This entry must be in the following format:
-
     ```markdown
     *   **Topic: [Name of Source]**
         *   **Hook:** Any question, code request, or query about using the [Name of Source].
-        *   **Covered Concepts:** [Bulleted list of capabilities synthesized in Step 3.2].
+        *   **Covered Concepts:** [Bulleted list of capabilities synthesized in Step 3.1.2].
         *   **Example:** "[Create a relevant example query based on the covered concepts]."
     ```
-4.  Write the updated content back to the `/llms-docs-ext/GEMINI.md` file.
+4.  Write the updated content back to the `/llms-docs-mcp/GEMINI.md` file.
 
-### Step 3.5: Final Confirmation
-
+#### Step 3.1.5: Final Confirmation
 1.  Report the successful integration to the user by stating: "I have successfully integrated the `[Name of Source]` documentation into the extension."
+
+### 3.2. Removing a Documentation Source
+
+This procedure removes an existing documentation source from the extension.
+
+#### Step 3.2.1: Update Extension Configuration
+1.  Read the contents of the `/llms-docs-mcp/gemini-extension.json` file.
+2.  Find the `args` array within the `mcpServers.llms-docs-mcp` object.
+3.  Remove the string entry that starts with `[Name of Source]:`.
+4.  Write the updated content back to the `/llms-docs-mcp/gemini-extension.json` file.
+
+#### Step 3.2.2: Update Extension `GEMINI.md`
+1.  Read the contents of the `/llms-docs-mcp/GEMINI.md` file.
+2.  Find and remove the entire `*   **Topic: [Name of Source]**` block from the "Activation Hooks & Supported Topics" section.
+3.  Write the updated content back to the `/llms-docs-mcp/GEMINI.md` file.
+
+#### Step 3.2.3: Final Confirmation
+1.  Report the successful removal to the user by stating: "I have successfully removed the `[Name of Source]` documentation source."
+
+### 3.3. Modifying a Documentation Source
+
+This procedure modifies the URL of an existing documentation source.
+
+#### Step 3.3.1: Update Extension Configuration
+1.  Read the contents of the `/llms-docs-mcp/gemini-extension.json` file.
+2.  Find the `args` array within the `mcpServers.llms-docs-mcp` object.
+3.  Find and replace the string entry that starts with `[Name of Source]:` with the new string `"[Name of Source]:[New URL to llms.txt]"`.
+4.  Write the updated content back to the `/llms-docs-mcp/gemini-extension.json` file.
+
+#### Step 3.3.2: Final Confirmation
+1.  Report the successful modification to the user by stating: "I have successfully updated the URL for the `[Name of Source]` documentation source."
+2.  **Note:** If the fundamental nature of the documentation has changed, it may be necessary to re-analyze the source and update the "Covered Concepts" in `/llms-docs-mcp/GEMINI.md`. This should be done as a separate "add" and "remove" operation if required.
 [//]: # (USER_SECTION_END)
 
 ## 2. AI-Generated Project Analysis
