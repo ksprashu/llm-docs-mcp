@@ -27,33 +27,62 @@ At its core, the `llms-docs-mcp` runs a local MCP (Model Context Protocol) serve
 
 ## Installation and Setup
 
-To get started with the `llms-docs-mcp`, you can clone the repository directly into your Gemini CLI extensions directory. You have the option of a global installation, which will be available to your user everywhere, or a local installation for the current workspace.
+To get started with the `llms-docs-mcp`, clone the repository to a location of your choice and then create a symbolic link to it from the Gemini CLI extensions directory. This is the recommended setup for development, as it ensures any changes you make are immediately reflected in the CLI.
 
 ### Prerequisites
 
 - **Gemini CLI**: Ensure you have the Gemini CLI installed and configured on your system.
+- **Git**: Ensure you have Git installed.
 
-### Clone the Repository
+### 1. Clone the Repository
+
+First, clone the repository to your local machine.
+
+```bash
+git clone https://github.com/ksprashu/llm-docs-mcp.git
+cd llm-docs-mcp
+```
+
+### 2. Create a Symbolic Link
+
+Next, create a symbolic link from the `llms-docs-mcp` subdirectory to the Gemini CLI's global extensions folder. This allows the CLI to discover and load the extension automatically.
+
+```bash
+# Get the absolute path to the current directory
+SOURCE_DIR="$(pwd)/llms-docs-mcp"
+
+# Define the destination directory for Gemini extensions
+DEST_DIR="$HOME/.gemini/extensions/llms-docs-mcp"
+
+# Create the extensions directory if it doesn't exist
+mkdir -p "$HOME/.gemini/extensions"
+
+# Create the symbolic link
+ln -s "$SOURCE_DIR" "$DEST_DIR"
+
+echo "Successfully created symlink. The llms-docs-mcp extension is now installed."
+```
+
+The Gemini CLI will now load the extension on startup. Any updates you pull from the Git repository will be available immediately.
+
+### Alternative: Manual Installation
+
+If you prefer not to use a symbolic link, you can manually copy the `llms-docs-mcp` directory into the Gemini extensions folder.
 
 #### Global Installation
 ```bash
 mkdir -p ~/.gemini/extensions
-git clone https://github.com/google/llms-docs-mcp.git ~/.gemini/extensions/llms-docs-mcp
+cp -R llms-docs-mcp ~/.gemini/extensions/
 ```
 
 #### Workspace Installation
 ```bash
 mkdir -p ./.gemini/extensions
-git clone https://github.com/google/llms-docs-mcp.git ./.gemini/extensions/llms-docs-mcp
+cp -R llms-docs-mcp ./.gemini/extensions/
 ```
 
-### Install Dependencies
+Note that with this method, you will need to manually copy the folder again every time you want to update the extension.
 
-The `llms-docs-mcp` extension is designed to be self-contained and does not require any additional dependencies to be installed. Once cloned into the appropriate directory, the Gemini CLI will automatically load the extension on startup.
-
-### Configure Environment
-
-The `llms-docs-mcp` uses a `config.json` file to manage documentation sources. This file is located in the `llms-docs-mcp/` directory and can be customized to add, update, or remove documentation sources as needed.
 
 ## Usage
 
