@@ -33,6 +33,11 @@ To get started with the `llms-docs-mcp`, clone the repository to a location of y
 
 - **Gemini CLI**: Ensure you have the Gemini CLI installed and configured on your system.
 - **Git**: Ensure you have Git installed.
+- **Python and Pip**: This extension requires Python 3.8 or higher. You can download it from [python.org](https://www.python.org/downloads/). Pip, the package installer for Python, is included with modern Python versions.
+- **uv**: This extension uses `uv` to manage Python packages and environments. Once you have Python and pip installed, you can install `uv` by running the following command in your terminal:
+  ```bash
+  pip install uv
+  ```
 
 ### 1. Clone the Repository
 
